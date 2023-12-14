@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
+	"github.com/opensvc/om3/util/findmnt"
 	"github.com/streadway/amqp"
 	"log"
 	"net"
@@ -322,6 +323,30 @@ func Status(verbose bool) {
 			if err != nil {
 				fmt.Printf("[-] failed to get the absolute path to the InstalledServices folder")
 				continue
+			}
+
+			volumes, err := findmnt.List("/dev/sdc", "") // TODO is always /dev/sdc?
+
+			if err != nil {
+				fmt.Printf("[-] Unable to get volumes using findmnt: %s\n", err)
+			} else {
+				for _, volume := range volumes {
+					if strings.Contains(volume.Source, installedServicesAbsPath) {
+						alreadyAdded := false
+						for _, v := range installedServices {
+							if info == v {
+								alreadyAdded = true
+							}
+						}
+
+						if !alreadyAdded {
+							installedServices = append(installedServices, info)
+							elementsOnDisk = RemoveStringFromSliceNoOrder(elementsOnDisk, container.Labels["name"])
+							elementsInCompose = RemoveStringFromSliceNoOrder(elementsInCompose, container.Labels["name"])
+						}
+
+					}
+				}
 			}
 
 			for _, mnt := range container.Mounts {

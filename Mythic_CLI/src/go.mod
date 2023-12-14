@@ -4,6 +4,7 @@ go 1.18
 
 require (
 	github.com/docker/docker v24.0.7+incompatible
+	github.com/opensvc/om3 v0.0.0-20231213110123-7a8c8fde02c3
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.17.0
 	github.com/streadway/amqp v1.1.0
